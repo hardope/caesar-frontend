@@ -4,6 +4,7 @@ import Select from "./Select";
 const Caesar = () => {
     
     const [output, setOutput] = useState<string>("")
+    const [loading, setLoading] = useState<boolean>(false)
 
     const API = "https://caesar-10qk.onrender.com/";
 
@@ -34,18 +35,26 @@ const Caesar = () => {
     }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        setLoading(true)
         e.preventDefault()
         const text = e.currentTarget["text-input"].value
         const shift = parseInt(e.currentTarget["shift"].value)
         const algorithm = e.currentTarget["algorithm"].value
         const action = e.currentTarget["choose-action"].value
-        let result = await encrypt(text, shift, action, algorithm)
-        setOutput(result)
+        try {
+            let result = await encrypt(text, shift, action, algorithm)
+            setOutput(result)
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setLoading(false)
+        }
     }
     
     return (
         
         <>
+            {loading && <div className="loader-container"> <span id="loader"></span></div>}
             <form onSubmit={handleSubmit}>
                 <input name="text-input" type="text" placeholder="Enter text to encrypt here"></input>
                 <input name="shift" type="number" placeholder="Enter shift value here"></input>
@@ -56,6 +65,7 @@ const Caesar = () => {
                             [
                             { key: "Caesar", value: "caesar" },
                             { key: "ROT13", value: "rot13" },
+                            { key: "CRot13", value: "crot13"},
                             { key: "Atbash", value: "atbash" }
                         ]}
                         defaultValue="caesar"
